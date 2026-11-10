@@ -1,22 +1,69 @@
 from datetime import datetime
+from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.domain.enums.estados import TipoMovimiento
 from app.infrastructure.database.base import Base
-from app.models.mixins import UUIDPrimaryKeyMixin
-from app.models.types import columna_enum
 
 
-class Movimiento(UUIDPrimaryKeyMixin, Base):
+class Movimiento(Base):
     __tablename__ = "movimientos"
 
-    producto_id: Mapped[str | None] = mapped_column(
-        String(36), ForeignKey("productos.id", ondelete="SET NULL"), index=True
+    idMovimiento: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        comment="Clave primaria. Registro único de cada transacción de inventario.",
     )
-    tipo: Mapped[TipoMovimiento] = mapped_column(columna_enum(TipoMovimiento, "tipo_movimiento"), nullable=False)
-    cantidad: Mapped[int] = mapped_column(Integer, nullable=False)
-    motivo: Mapped[str | None] = mapped_column(Text)
-    responsable: Mapped[str | None] = mapped_column(String(150))
-    fecha: Mapped[datetime | None] = mapped_column(DateTime, server_default=func.current_timestamp())
+
+    fechaMovimiento: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        comment="Fecha en la que se ejecuta el movimiento.",
+    )
+
+    precioUnitario: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        comment="Costo o valor unitario del producto al momento de realizar el movimiento.",
+    )
+
+    cantidad: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        comment="Cantidad de producto que entra o sale.",
+    )
+
+    subtotal: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        comment="Valor total de la transacción para ese lote de productos (precioUnitario por cantidad).",
+    )
+
+    tipoMovimiento: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        comment="Identificador del tipo de movimiento realizado (entrada, salida).",
+    )
+
+    usuario_identificacion: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("usuarios.identificacion", name="fk_movimiento_usuario1"),
+        nullable=False,
+        comment="Clave foránea que registra qué empleado o usuario del sistema realizó el movimiento.",
+    )
+
+    inventario_codInventario: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("inventarios.id", name="fk_movimiento_inventario1"),
+        nullable=False,
+        comment="Clave foránea que determina el producto relacionado con el movimiento.",
+    )
+
+    detalleVenta_idDetalleVenta: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("detalleVentas.idDetalleVenta", name="fk_movimiento_detalleVenta1"),
+        nullable=False,
+        comment="Clave foránea que relaciona el movimiento con el detalle de venta correspondiente.",
+    )

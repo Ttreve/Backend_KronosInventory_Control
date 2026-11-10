@@ -1,11 +1,10 @@
 import enum
 
 
-class UserRole(str, enum.Enum):
-    """Roles del sistema (los mismos que usa el frontend)."""
+class UserRole(enum.IntEnum):
+    """Ids de la tabla `roles` (se usarán en la autenticación)."""
 
-    JEFE = "jefe"
-    ADMINISTRADOR = "administrador"
-    EMPLEADO = "empleado"
-    CLIENTE = "cliente"
-    PROVEEDOR = "proveedor"
+    CLIENTE = 1
+    PROVEEDOR = 2
+    JEFE = 3
+    EMPLEADO = 4
