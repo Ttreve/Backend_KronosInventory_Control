@@ -1,16 +1,21 @@
-from datetime import datetime
-
-from sqlalchemy import DateTime, String, Text, func
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.database.base import Base
-from app.models.mixins import UUIDPrimaryKeyMixin
 
 
-class Categoria(UUIDPrimaryKeyMixin, Base):
+class Categoria(Base):
     __tablename__ = "categorias"
 
-    nombre: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
-    descripcion: Mapped[str | None] = mapped_column(Text)
-    icono: Mapped[str | None] = mapped_column(String(100))
-    creado_en: Mapped[datetime | None] = mapped_column(DateTime, server_default=func.current_timestamp())
+    idCategoria: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=False,
+        comment="Clave primaria. Identificador de la categoría del producto.",
+    )
+
+    nombreCategoria: Mapped[str] = mapped_column(
+        String(45),
+        nullable=False,
+        comment="Nombre de la categoría.",
+    )
